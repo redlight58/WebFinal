@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css" />
+  <title>Covid-19</title>
+</head>
+
+<body>
+  
+    <table id="ödev">
+      <thead>
+        <style>
+            body{
+              background-color:whitesmoke;
+              text-align:center;
+          }
+           table
+          {
+              background-color:red;
+              text-align: center;
+              
+              
+          }
+  
+          tr:nth-child(even){
+               background-color: whitesmoke;
+              }
+          td{
+          
+          font-size:larger;
+          color:red;
+          font-weight: bolder;
+          padding: 5px;
+          background-color:whitesmoke;
+          font-style: italic;
+          
+         
+          }
+          th{
+            color:black;
+            font-size: 20px;
+            font-style:normal;            
+          }
+          
+          </style>
+        
+        <tr>
+          <th>ID</th>
+          <th>Country</th>
+          <th>Country Code</th>
+          <th>Lat</th>
+          <th>Lon</th>
+          <th>Confirmed</th>
+          <th>Deaths</th>
+          <th>Recovered</th>
+          <th>Active</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+    </table>
+ 
+  <h2 style="text-align: center">Türkiye Tablosu</h2>
+  <canvas id="chart" width="30px" height="10px"></canvas>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.2/dist/chart.min.js"></script>
+  <script>
+    $(function () {
+      $.get(
+        "https://api.covid19api.com/country/turkey?from=2021-05-01T00:00:00Z&to=2021-06-01T00:00:00Z",
+        function (final_ödevi) {
+          $("#ödev").DataTable({
+            data: final_ödevi,
+            dataSrc: "",
+            columns: [
+              { data: "ID" },
+              { data: "Country" },
+              { data: "CountryCode" },
+              { data: "Lat" },
+              { data: "Lon" },
+              { data: "Confirmed" },
+              { data: "Deaths" },
+              { data: "Recovered" },
+              { data: "Active" },
+              { data: "Date" },
+            ],
+          });
+        }
+      );
+    });
+
+    var final_setting = {
+      async: true,
+      crossDomain: true,
+      url: "https://api.covid19api.com/country/turkey?from=2020-10-01T00:00:00Z&amp;to=2021-05-30T00:00:00Z",
+      method: "GET",
+      headers: {
+        "cache-control": "no-cache",
+        "postman-token": "ef0cdd3d-7343-bb20-71bd-c79ffb86035e",
+      },
+    };
+
+    function lastDayOfMonth(yıl, ay) {
+      let tarih = new Date(yıl, ay + 1, 0);
+      return tarih.getDate();
+    }
+
+    $.ajax(final_setting).done(function (final_ödevi) {
+      let aktifvaka = [];
+      let vakatarihi = [];
+
+      for (let i in final_ödevi) {
+        var a = new Date(final_ödevi[i].Date);
+        SonGun = lastDayOfMonth(a.getFullYear(), a.getMonth());
+        day = a.getDate()
+        if (day == SonGun) {
+          aktifvaka.push(final_ödevi[i].Active);
+          vakatarihi.push(final_ödevi[i].Date);
+        }
+      }
+
+      var ctx = document.getElementById("chart").getContext("2d");
+      var myChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: vakatarihi,
+          datasets: [
+            {
+              label: "30.Gün Aktif Vaka",
+              data: aktifvaka,
+              backgroundColor: [
+                "orange",
+                "blue",
+                "yellow	",
+                "green",
+                "Purple",
+                "Brown",
+                "red",
+              ],
+              borderColor: [
+                "red",
+                "orange",
+                "blue",
+                "yellow",
+                "green",
+                "Purple",
+                "Brown",
+                "red",
+              ],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    });
+  </script>
+</body>
+
+</html>
